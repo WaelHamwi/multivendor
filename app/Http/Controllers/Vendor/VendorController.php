@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Models\Vendor;
+use App\Models\User;
 use App\Services\Vendor\VendorDatabaseService;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\User;
-
+use Illuminate\Support\Facades\Hash;
 
 class VendorController extends Controller
 {
-    protected $vendorDatabaseService;
+    protected VendorDatabaseService $vendorDatabaseService;
 
     public function __construct(VendorDatabaseService $vendorDatabaseService)
     {
@@ -19,52 +19,45 @@ class VendorController extends Controller
     }
 
     /**
-     * Custom logic for vendor dashboard or additional features (if needed).
-     */
-    public function dashboard()
-    {
-        // You can add custom logic here for vendor-specific pages
-        return view('vendor.dashboard');
-    }
-
-    /**
-     * Manually create a user and a vendor (inserting the user first).
+     * Manually create a user and vendor, and set up its database.
      */
     public function create(Request $request)
     {
-        dd($request);
-        // Validate the request data
+        dd('das');
+        // 1. Validate incoming request
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-            'database_name' => 'required|unique:vendors',
-            'status' => 'required',
-            'subscription' => 'required',
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
+            'password'     => 'required|string|min:8',
+            'database_name'=> 'required|string|max:50|unique:vendors,database_name',
+            'status'       => 'required|in:pending,approved,banned',
+            'subscription' => 'required|in:free,pro,enterprise',
         ]);
 
-        // 1. Create a new user first
+        // 2. Create User
         $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
+            'name'     => $validated['name'],
+            'email'    => $validated['email'],
+            'password' => Hash::make($validated['password']),
         ]);
 
-        // 2. Generate the vendor's database name
-        $databaseName = 'vendor_' . strtolower(str_replace(' ', '_', $validated['database_name']));
+        // 3. Generate clean database name
+        $databaseName = 'vendor_' . strtolower(preg_replace('/[^a-z0-9_]/', '_', $validated['database_name']));
 
-        // 3. Create the Vendor and associate it with the created User
+        // 4. Create Vendor linked to User
         $vendor = Vendor::create([
-            'user_id' => $user->id,
+            'user_id'       => $user->id,
             'database_name' => $databaseName,
-            'status' => $validated['status'],
-            'subscription' => $validated['subscription'],
+            'status'        => $validated['status'],
+            'subscription'  => $validated['subscription'],
         ]);
 
-        // 4. Create the vendor's database and run migrations
+        // 5. Create the vendor database dynamically
         $this->vendorDatabaseService->createVendorDatabase($databaseName);
 
-        // 5. Redirect to the Filament admin panel or another appropriate page
-        return redirect()->route('filament.resources.vendors.index')->with('success', 'Vendor and user created successfully.');
+        // 6. Redirect
+        return redirect()
+            ->route('filament.resources.vendors.index')
+            ->with('success', 'Vendor and User created successfully with dynamic DB.');
     }
 }

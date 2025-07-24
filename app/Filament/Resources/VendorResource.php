@@ -16,7 +16,7 @@ use App\Services\Vendor\VendorDatabaseService;
 
 class VendorResource extends Resource
 {
- 
+
     protected static ?string $model = Vendor::class;
     // protected static ?string $navigationIcon = 'heroicon-o-office-building';
     protected static ?string $navigationLabel = 'Vendors';
@@ -31,15 +31,27 @@ class VendorResource extends Resource
 
     public static function form(Forms\Form $form): Forms\Form
     {
-     
+
         return $form
             ->schema([
-                Forms\Components\TextInput::make('user_id')
-                    ->label('User ID')
+                Forms\Components\TextInput::make('name')
+                    ->label('Owner Name')
                     ->required(),
+
+                Forms\Components\TextInput::make('email')
+                    ->label('Owner Email')
+                    ->email()
+                    ->required(),
+
+                Forms\Components\TextInput::make('password')
+                    ->label('Password')
+                    ->password()
+                    ->required(),
+
                 Forms\Components\TextInput::make('database_name')
                     ->label('Database Name')
                     ->required(),
+
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options([
@@ -48,6 +60,7 @@ class VendorResource extends Resource
                         'banned' => 'Banned',
                     ])
                     ->default('pending'),
+
                 Forms\Components\Select::make('subscription')
                     ->label('Subscription')
                     ->options([
@@ -58,9 +71,8 @@ class VendorResource extends Resource
                     ->default('free'),
             ]);
     }
-
     public static function table(Tables\Table $table): Tables\Table
-    { 
+    {
         return $table
             ->columns([
                 TextColumn::make('user_id'),
@@ -68,12 +80,12 @@ class VendorResource extends Resource
                 TextColumn::make('status')
                     ->label('Status')
                     ->formatStateUsing(function ($state) {
-                        return ucfirst($state); 
+                        return ucfirst($state);
                     }),
                 TextColumn::make('subscription')
                     ->label('Subscription')
                     ->formatStateUsing(function ($state) {
-                        return ucfirst($state);  
+                        return ucfirst($state);
                     }),
             ])
             ->filters([
@@ -88,14 +100,14 @@ class VendorResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 // You should register this action here under actions and not in a 'table' method.
-                Tables\Actions\Action::make('create_vendor')
+                /*  Tables\Actions\Action::make('create_vendor')
                     ->label('Create Vendor Database')
                     ->action(function (Vendor $vendor) {
                         // Execute the custom logic for creating the vendor's database and running migrations
                         app(VendorDatabaseService::class)->createVendorDatabase($vendor->database_name);
 
                         return redirect()->route('filament.resources.vendors.index')->with('success', 'Vendor created successfully and database setup.');
-                    })
+                    })*/
             ]);
     }
 
@@ -106,6 +118,7 @@ class VendorResource extends Resource
     {
         return [
             'index' => Pages\ListVendors::route('/'),
+            'create' => Pages\CreateVendor::route('/create'),
             'edit' => Pages\EditVendor::route('/{record}/edit'),
         ];
     }
