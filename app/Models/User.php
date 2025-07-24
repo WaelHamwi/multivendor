@@ -6,11 +6,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * @mixin \Spatie\Permission\Traits\HasRoles
+ * @method bool hasRole(string|array|\Spatie\Permission\Models\Role $roles, string|null $guard = null)
+ * @method bool hasAnyRole(string|array|\Spatie\Permission\Models\Role $roles)
+ * @method bool assignRole(string|array|\Spatie\Permission\Models\Role $roles)
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    use HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -44,5 +52,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function vendor()
+    {
+        return $this->hasOne(Vendor::class); // A user can have one vendor (if they are a vendor)
     }
 }

@@ -1,0 +1,15 @@
+const AdminDashboard = () => {
+    return (
+        <div>
+            <h1>Admin Dashboard</h1>
+            <p>Welcome, Admin!</p>
+            <p>Welcome, Admin!</p>
+            <p>Welcome, Admin!</p>
+            <p>Welcome, Admin!</p>
+            <p>Welcome, Admin!</p>
+            <p>Welcome, Admin!</p>
+        </div>
+    );
+};
+
+export default AdminDashboard;

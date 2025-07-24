@@ -61,6 +61,20 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+        'vendor__db' => [
+            'driver' => 'mysql',
+            'host' => env('VENDOR_DB_HOST', '127.0.0.1'),
+            'port' => env('VENDOR_DB_PORT', '3306'),
+            'database' => env('VENDOR_DB_DATABASE', 'fallback_db'),
+            'username' => env('VENDOR_DB_USERNAME', 'root'),
+            'password' => env('VENDOR_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
 
         'mariadb' => [
             'driver' => 'mariadb',
@@ -147,7 +161,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
