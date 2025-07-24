@@ -21,7 +21,7 @@ class VendorDatabaseService
 
         // Use main DB connection (default MySQL)
         $mainConnection = DB::connection('mysql');
-        $databaseExists = $mainConnection->select("SHOW DATABASES LIKE ?", [$databaseName]);
+        $databaseExists = $mainConnection->select("SHOW DATABASES LIKE '{$databaseName}'");
 
         // Create database if missing
         if (empty($databaseExists)) {

@@ -16,17 +16,18 @@ class CreateVendor extends CreateRecord
 
     protected function handleRecordCreation(array $data): Vendor
     {
-        // 1. Create user
         $user = User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
 
-        // 2. Generate vendor DB name
-        $databaseName = 'vendor_' . strtolower(preg_replace('/[^a-z0-9_]/', '_', $data['database_name']));
+        // Sanitize the database name properly:
+        $databaseNameRaw = strtolower($data['database_name']);
+        $databaseNameSlug = preg_replace('/[^a-z0-9]+/', '_', $databaseNameRaw);
+        $databaseNameSlug = trim($databaseNameSlug, '_');
+        $databaseName = 'vendor_' . $databaseNameSlug;
 
-        // 3. Create vendor and return it
         $vendor = Vendor::create([
             'user_id'       => $user->id,
             'database_name' => $databaseName,
@@ -34,14 +35,13 @@ class CreateVendor extends CreateRecord
             'subscription'  => $data['subscription'],
         ]);
 
-        // Set the record manually for afterSave()
         $this->record = $vendor;
 
-        // Now call afterSave yourself, since Filament won't
         $this->afterSave();
 
         return $vendor;
     }
+
 
     protected function afterSave(): void
     {
