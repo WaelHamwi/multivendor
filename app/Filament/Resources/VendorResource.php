@@ -69,6 +69,14 @@ class VendorResource extends Resource
                         'enterprise' => 'Enterprise',
                     ])
                     ->default('free'),
+                Forms\Components\Select::make('department') 
+                    ->label('Department')
+                    ->options([
+                        'clothing' => 'Clothing',
+                        'real_estate' => 'Real Estate',
+                        'cars' => 'Cars',
+                    ])
+                    ->required(),
             ]);
     }
     public static function table(Tables\Table $table): Tables\Table

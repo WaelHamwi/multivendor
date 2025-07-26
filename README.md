@@ -38,3 +38,13 @@ git restore database/migrations/0001_01_01_000001_create_cache_table.php
 git restore database/migrations/0001_01_01_000002_create_jobs_table.php
 
 php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider" when the package is missing ! 
+
+composer require spatie/laravel-medialibrary
+php artisan vendor:publish --provider="Spatie\MediaLibrary\MediaLibraryServiceProvider"
+php artisan migrate
+
+php artisan make:model Tenant
+
+php artisan make:migration tenants --table=tenants
+
+php artisan migrate

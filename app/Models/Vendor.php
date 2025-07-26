@@ -20,7 +20,8 @@ class Vendor extends Model
         'status',
         'database_name',
         'stripe_account',
-        'subscription'
+        'subscription',
+        'department'
     ];
 
     // Define the relationship with vendor users

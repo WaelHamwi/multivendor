@@ -5,6 +5,7 @@ namespace App\Services\Vendor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
+use Stancl\Tenancy\Facades\Tenancy;
 use Exception;
 
 class VendorDatabaseService
@@ -13,13 +14,12 @@ class VendorDatabaseService
      * Create the vendor database if it doesn't exist,
      * set the connection, and run migrations.
      */
-    public function createVendorDatabase(string $databaseName): void
+    public function createVendorDatabase(string $databaseName, string $department): void
     {
         if (empty($databaseName)) {
             throw new Exception("Database name cannot be empty.");
         }
 
-        // Use main DB connection (default MySQL)
         $mainConnection = DB::connection('mysql');
         $databaseExists = $mainConnection->select("SHOW DATABASES LIKE '{$databaseName}'");
 
@@ -31,8 +31,71 @@ class VendorDatabaseService
         // Set vendor__db to use the new DB
         $this->setVendorDatabase($databaseName);
 
-        // Run migrations inside vendor database
-        Artisan::call('migrate', ['--database' => 'vendor__db']);
+        // Create tenant and set it
+        $tenant = \App\Models\Tenant::create(['name' => $databaseName]);
+
+       // Tenancy::find($tenant->id);
+
+
+        $this->setTenantDatabase($databaseName);
+
+
+        // Run department-specific migrations
+        $this->runDepartmentSpecificMigrations($department);
+    }
+
+    private function runDepartmentSpecificMigrations(string $department): void
+    {
+        $migrationPath = match ($department) {
+            'clothing'    => 'database/migrations/vendor_clothing',
+            'real_estate' => 'database/migrations/vendor_realestate',
+            'cars'        => 'database/migrations/vendor_cars',
+            default       => throw new Exception("Unknown department: {$department}"),
+        };
+
+        if (!empty(config('database.connections.tenant.database'))) {
+            Artisan::call('migrate', [
+                '--database' => 'vendor__db',
+                '--path'     => $migrationPath,
+                 '--force' => true,
+            ]);
+            
+        } else {
+            throw new Exception('Tenant database is not set correctly.');
+        }
+    }
+
+    /**
+     * Dynamically set the vendor database connection.
+     */
+    public function setVendorDatabase(string $databaseName): void
+    {
+        if (empty($databaseName)) {
+            throw new Exception("Database name cannot be empty.");
+        }
+
+        config(['database.connections.vendor__db.database' => $databaseName]);
+
+        // Reset the vendor__db connection
+        DB::purge('vendor__db');
+        DB::reconnect('vendor__db');
+    }
+
+    /**
+     * Dynamically set the tenant database connection.
+     */
+    public function setTenantDatabase(string $databaseName): void
+    {
+        if (empty($databaseName)) {
+            throw new Exception("Tenant database name cannot be empty.");
+        }
+
+        config(['database.connections.tenant.database' => $databaseName]);
+
+
+        // Reset the tenant connection
+        DB::purge('tenant');
+        DB::reconnect('tenant');
     }
 
     /**
@@ -47,22 +110,6 @@ class VendorDatabaseService
         } catch (\Throwable $e) {
             return false;
         }
-    }
-
-    /**
-     * Dynamically set vendor__db to the given database.
-     */
-    public function setVendorDatabase(string $databaseName): void
-    {
-        if (empty($databaseName)) {
-            throw new Exception("Database name cannot be empty.");
-        }
-
-        config(['database.connections.vendor__db.database' => $databaseName]);
-
-        // Reset connection
-        DB::purge('vendor__db');
-        DB::reconnect('vendor__db');
     }
 
     /**
@@ -103,10 +150,10 @@ class VendorDatabaseService
     /**
      * Run migrations on an existing vendor DB.
      */
-    public function runVendorMigrations(string $databaseName): void
+    public function runVendorMigrations(string $databaseName, string $department): void
     {
         if (!$this->databaseExists($databaseName)) {
-            $this->createVendorDatabase($databaseName);
+            $this->createVendorDatabase($databaseName, $department);
         } else {
             $this->setVendorDatabase($databaseName);
             Artisan::call('migrate', ['--database' => 'vendor__db']);
@@ -124,4 +171,5 @@ class VendorDatabaseService
             return 'Error: ' . $e->getMessage();
         }
     }
+    
 }

@@ -33,7 +33,9 @@ class CreateVendor extends CreateRecord
             'database_name' => $databaseName,
             'status'        => $data['status'],
             'subscription'  => $data['subscription'],
+            'department'    => $data['department'],
         ]);
+
 
         $this->record = $vendor;
 
@@ -49,7 +51,7 @@ class CreateVendor extends CreateRecord
         $databaseService = app(VendorDatabaseService::class);
 
         try {
-            $databaseService->createVendorDatabase($vendor->database_name);
+            $databaseService->createVendorDatabase($vendor->database_name, $vendor->department);
 
             Notification::make()
                 ->title('Vendor created and database setup successfully!')

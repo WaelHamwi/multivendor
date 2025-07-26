@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Http\Controllers\Vendor;
 
 use App\Models\Vendor;
@@ -18,9 +18,7 @@ class VendorController extends Controller
         $this->vendorDatabaseService = $vendorDatabaseService;
     }
 
-    /**
-     * Manually create a user and vendor, and set up its database.
-     */
+   
     public function create(Request $request)
     {
         dd('das');
@@ -60,4 +58,4 @@ class VendorController extends Controller
             ->route('filament.resources.vendors.index')
             ->with('success', 'Vendor and User created successfully with dynamic DB.');
     }
-}
+}*/

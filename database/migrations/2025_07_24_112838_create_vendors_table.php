@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('database_name')->unique();
             $table->enum('status', ['pending', 'approved', 'banned'])->default('pending');
             $table->enum('subscription', ['free', 'pro', 'enterprise'])->default('free');
+            $table->string('department')->nullable();
             $table->timestamps();
         });
     }

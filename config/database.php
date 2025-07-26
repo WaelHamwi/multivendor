@@ -61,21 +61,24 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
-        'vendor__db' => [
+        'tenant' => [
             'driver' => 'mysql',
-            'host' => env('VENDOR_DB_HOST', '127.0.0.1'),
-            'port' => env('VENDOR_DB_PORT', '3306'),
-            'database' => env('VENDOR_DB_DATABASE', 'fallback_db'),
-            'username' => env('VENDOR_DB_USERNAME', 'root'),
-            'password' => env('VENDOR_DB_PASSWORD', ''),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'database' => '', // dynamically set
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'strict' => true,
-            'engine' => null,
         ],
-
-
+        'vendor__db' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'database' => '', // dynamically set
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+        ],
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
