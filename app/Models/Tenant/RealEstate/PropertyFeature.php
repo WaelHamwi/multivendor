@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\RealEstate;
+namespace App\Models\Tenant\RealEstate;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

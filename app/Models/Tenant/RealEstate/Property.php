@@ -1,10 +1,12 @@
 <?php
 
-namespace App\Models\RealEstate;
+namespace App\Models\Tenant\RealEstate;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use app\Models\Vendor;
+use App\Services\Vendor\VendorDatabaseService;
 
 class Property extends Model implements HasMedia
 {
@@ -23,11 +25,17 @@ class Property extends Model implements HasMedia
         'status',
         'created_by',
     ];
-
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        app(VendorDatabaseService::class)->setVendorDatabase('vendor_realestate_db');
+        $this->setConnection('vendor__db');
+    }
     public function features()
     {
         return $this->hasMany(PropertyFeature::class, 'property_id');
     }
+
 
     /**
      * Register the conversions for the images.

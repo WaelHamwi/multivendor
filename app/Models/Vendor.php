@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Support\Facades\DB;
 
 class Vendor extends Model
@@ -28,6 +27,13 @@ class Vendor extends Model
     public function vendorUsers()
     {
         return $this->hasMany(VendorUser::class);
+    }
+
+    public function properties()
+    {
+        return (new \App\Models\Tenant\RealEstate\Property)
+            ->setConnection('vendor__db')
+            ->where('vendor_id', $this->id);
     }
 
     // Accessor for the vendor's database connection

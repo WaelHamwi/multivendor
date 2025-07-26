@@ -5,45 +5,50 @@ namespace App\Services\Vendor;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Artisan;
-use Stancl\Tenancy\Facades\Tenancy;
 use Exception;
 
 class VendorDatabaseService
 {
     /**
-     * Create the vendor database if it doesn't exist,
-     * set the connection, and run migrations.
+     * Create the department database if it doesn't exist,
+     * set the connection, and run department migrations.
      */
     public function createVendorDatabase(string $databaseName, string $department): void
     {
-        if (empty($databaseName)) {
-            throw new Exception("Database name cannot be empty.");
-        }
+        // Force department-based DB naming
+        $departmentDbName = $this->getDepartmentDatabaseName($department);
 
         $mainConnection = DB::connection('mysql');
-        $databaseExists = $mainConnection->select("SHOW DATABASES LIKE '{$databaseName}'");
+        $databaseExists = $mainConnection->select("SHOW DATABASES LIKE '{$departmentDbName}'");
 
         // Create database if missing
         if (empty($databaseExists)) {
-            $mainConnection->statement("CREATE DATABASE IF NOT EXISTS `{$databaseName}`");
+            $mainConnection->statement("CREATE DATABASE IF NOT EXISTS `{$departmentDbName}`");
         }
 
-        // Set vendor__db to use the new DB
-        $this->setVendorDatabase($databaseName);
+        // Set vendor__db to use the department DB
+        $this->setVendorDatabase($departmentDbName);
 
-        // Create tenant and set it
-        $tenant = \App\Models\Tenant::create(['name' => $databaseName]);
-
-       // Tenancy::find($tenant->id);
-
-
-        $this->setTenantDatabase($databaseName);
-
-
-        // Run department-specific migrations
+        // Run department-specific migrations (only once per department DB)
         $this->runDepartmentSpecificMigrations($department);
     }
 
+    /**
+     * Map department to database name.
+     */
+    private function getDepartmentDatabaseName(string $department): string
+    {
+        return match ($department) {
+            'clothing'    => 'vendor_clothing_db',
+            'real_estate' => 'vendor_realestate_db',
+            'cars'        => 'vendor_cars_db',
+            default       => throw new Exception("Unknown department: {$department}"),
+        };
+    }
+
+    /**
+     * Run department-specific migrations.
+     */
     private function runDepartmentSpecificMigrations(string $department): void
     {
         $migrationPath = match ($department) {
@@ -53,16 +58,11 @@ class VendorDatabaseService
             default       => throw new Exception("Unknown department: {$department}"),
         };
 
-        if (!empty(config('database.connections.tenant.database'))) {
-            Artisan::call('migrate', [
-                '--database' => 'vendor__db',
-                '--path'     => $migrationPath,
-                 '--force' => true,
-            ]);
-            
-        } else {
-            throw new Exception('Tenant database is not set correctly.');
-        }
+        Artisan::call('migrate', [
+            '--database' => 'vendor__db',
+            '--path'     => $migrationPath,
+            '--force'    => true,
+        ]);
     }
 
     /**
@@ -76,7 +76,6 @@ class VendorDatabaseService
 
         config(['database.connections.vendor__db.database' => $databaseName]);
 
-        // Reset the vendor__db connection
         DB::purge('vendor__db');
         DB::reconnect('vendor__db');
     }
@@ -92,8 +91,6 @@ class VendorDatabaseService
 
         config(['database.connections.tenant.database' => $databaseName]);
 
-
-        // Reset the tenant connection
         DB::purge('tenant');
         DB::reconnect('tenant');
     }
@@ -148,14 +145,16 @@ class VendorDatabaseService
     }
 
     /**
-     * Run migrations on an existing vendor DB.
+     * Run migrations on an existing department DB.
      */
     public function runVendorMigrations(string $databaseName, string $department): void
     {
-        if (!$this->databaseExists($databaseName)) {
-            $this->createVendorDatabase($databaseName, $department);
+        $departmentDbName = $this->getDepartmentDatabaseName($department);
+
+        if (!$this->databaseExists($departmentDbName)) {
+            $this->createVendorDatabase($departmentDbName, $department);
         } else {
-            $this->setVendorDatabase($databaseName);
+            $this->setVendorDatabase($departmentDbName);
             Artisan::call('migrate', ['--database' => 'vendor__db']);
         }
     }
@@ -171,5 +170,4 @@ class VendorDatabaseService
             return 'Error: ' . $e->getMessage();
         }
     }
-    
 }
