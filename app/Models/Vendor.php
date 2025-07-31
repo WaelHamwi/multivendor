@@ -23,17 +23,30 @@ class Vendor extends Model
         'department'
     ];
 
-    // Define the relationship with vendor users
-    public function vendorUsers()
-    {
-        return $this->hasMany(VendorUser::class);
-    }
+
+
 
     public function properties()
     {
         return (new \App\Models\Tenant\RealEstate\Property)
             ->setConnection('vendor__db')
             ->where('vendor_id', $this->id);
+    }
+    public function cars()
+    {
+        return (new \App\Models\Tenant\Car\Car)
+            ->setConnection('vendor__db')
+            ->where('vendor_id', $this->id);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    // Define the relationship with vendor users
+    public function vendorUsers()
+    {
+        return $this->hasMany(VendorUser::class);
     }
 
     // Accessor for the vendor's database connection
@@ -54,10 +67,7 @@ class Vendor extends Model
     {
         return 'vendor_' . $this->id . '_db';  // Dynamically set the connection for the vendor's database
     }
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+
 
     // Use explicit connection in raw queries
     public static function getProductsForVendor($vendorId)

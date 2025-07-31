@@ -35,14 +35,26 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-       
+
         // Role-based redirect using Spatie
         if ($user->getRoleNames()[0] === "admin") {
             return redirect()->intended(route('admin.dashboard'));
         }
 
         if ($user->getRoleNames()[0] === "vendor") {
-            return redirect()->intended(route('vendor.dashboard'));
+            switch ($user->vendor_type) {
+                case 'real_estate':
+                    return redirect()->intended(route('filament.vendor.resources.properties.index'));
+
+                case 'cars':
+                    return redirect()->intended(route('filament.vendor.resources.cars.index'));
+
+                case 'clothing':
+                    return redirect()->intended(route('filament.vendor.resources.clothing.index'));
+
+                default:
+                    return redirect()->intended(route('filament.vendor.pages.dashboard'));
+            }
         }
 
         // Default for customer or no role

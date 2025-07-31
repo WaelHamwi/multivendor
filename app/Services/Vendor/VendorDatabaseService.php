@@ -54,7 +54,7 @@ class VendorDatabaseService
         $migrationPath = match ($department) {
             'clothing'    => 'database/migrations/vendor_clothing',
             'real_estate' => 'database/migrations/vendor_realestate',
-            'cars'        => 'database/migrations/vendor_cars',
+            'cars'        => 'database/migrations/vendor_car',
             default       => throw new Exception("Unknown department: {$department}"),
         };
 

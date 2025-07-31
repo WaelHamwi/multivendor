@@ -20,11 +20,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 
     // Vendor route - customize this based on your vendor dashboard setup
-    Route::middleware(['role:vendor'])->group(function () {
+    /*Route::middleware(['role:vendor'])->group(function () {
         Route::get('/vendor', function () {
             return Inertia::render('vendor/VendorDashboard');
         })->name('vendor.dashboard');
-    });
+    });*/
 
     // Customer route - customize this as needed
     Route::middleware(['role:customer'])->get('/customer', function () {

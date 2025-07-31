@@ -48,3 +48,27 @@ php artisan make:model Tenant
 php artisan make:migration tenants --table=tenants
 
 php artisan migrate
+
+php artisan make:filament-panel Vendor
+
+
+
+php artisan make:model Tenant/Clothing/Clothing
+
+php artisan make:model Tenant/Car/Car
+
+php artisan make:filament-resource Car
+
+php artisan make:migration create_cars_table --path=database/migrations/vendor_car
+php artisan make:migration create_car_features_table --path=database/migrations/vendor_car
+php artisan make:migration create_car_images_table --path=database/migrations/vendor_car
+
+php artisan make:middleware EnsureUserIsAdmin
+
+php artisan route:clear
+php artisan cache:clear
+php artisan view:clear
+
+php artisan route:list 
+
+php artisan make:model Models/Shared/Media
