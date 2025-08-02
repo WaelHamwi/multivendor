@@ -52,4 +52,15 @@ class Property extends Model implements HasMedia
             ->height(600)
             ->sharpen(10);
     }
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images')
+            ->useDisk('public')
+            ->useFallbackUrl('/images/placeholder.jpg')
+            ->useFallbackPath(public_path('/images/placeholder.jpg'));
+    }
+    public function getDirectoryPath(): string
+    {
+        return 'properties/images';
+    }
 }

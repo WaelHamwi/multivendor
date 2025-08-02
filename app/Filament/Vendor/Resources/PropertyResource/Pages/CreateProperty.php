@@ -10,11 +10,20 @@ use Illuminate\Support\Facades\Auth;
 class CreateProperty extends CreateRecord
 {
     protected static string $resource = PropertyResource::class;
-     protected function mutateFormDataBeforeCreate(array $data): array
+    protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['vendor_id'] = Auth::id();  
-        $data['created_by'] = Auth::id();  
+        $data['vendor_id'] = Auth::id();
+        $data['created_by'] = Auth::id();
 
         return $data;
+    }
+    protected function afterCreate(): void
+    {
+        foreach ($this->data['images'] as $file) {
+            $this->getRecord() 
+                 ->addMediaFromDisk($file, 'public')
+                ->preservingOriginal()
+                ->toMediaCollection('images', 'public');
+        }
     }
 }

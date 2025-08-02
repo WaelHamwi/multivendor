@@ -10,7 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-
+use App\Models\Shared\Media;
 class PropertyResource extends Resource
 {
     protected static ?string $model = Property::class;
@@ -19,7 +19,7 @@ class PropertyResource extends Resource
     protected static ?string $navigationGroup = 'Real Estate';
     public static function getEloquentQuery(): Builder
     {
-       // $user = auth()->user()->vendor;
+        // $user = auth()->user()->vendor;
         $user = auth()->user();
         $query = parent::getEloquentQuery()->where('vendor_id', $user->id);
         return $query;
@@ -86,6 +86,24 @@ class PropertyResource extends Resource
                     'warning' => 'pending',
                 ]),
             Tables\Columns\TextColumn::make('created_at')->dateTime(),
+            Tables\Columns\ImageColumn::make('image')
+                ->label('Preview')
+                ->getStateUsing(function ($record) {
+
+                    $modelType = get_class($record);
+                    $media = Media::on('mysql')
+
+                        ->where('model_type', $modelType)
+                        ->where('model_id', $record->getKey())
+                        ->where('collection_name', 'images')
+                        ->latest()
+                        ->first();
+
+
+                    return $media ? url('storage/properties/images/' . $media->file_name) : url('images/placeholder.jpg');
+                })
+                ->size(60)
+                ->circular(),
         ])
             ->filters([])
             ->actions([

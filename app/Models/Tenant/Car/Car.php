@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use App\Services\Vendor\VendorDatabaseService;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use App\Traits\CentralMediaConnection;
+
 class Car extends Model implements HasMedia
 {
     use InteractsWithMedia;
@@ -58,5 +57,16 @@ class Car extends Model implements HasMedia
             ->width(800)
             ->height(600)
             ->sharpen(10);
+    }
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images')
+            ->useDisk('public')
+            ->useFallbackUrl('/images/placeholder.jpg')
+            ->useFallbackPath(public_path('/images/placeholder.jpg'));
+    }
+    public function getDirectoryPath(): string
+    {
+        return 'cars/images';
     }
 }

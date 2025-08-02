@@ -72,3 +72,8 @@ php artisan view:clear
 php artisan route:list 
 
 php artisan make:model Models/Shared/Media
+
+php artisan storage:link
+
+php artisan make:filament-relation-manager PropertyFeatureRelationManager
+

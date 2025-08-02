@@ -10,25 +10,26 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\Shared\Media;
 
 class CarResource extends Resource
 {
     protected static ?string $model = Car::class;
-   // protected static ?string $navigationIcon = 'heroicon-o-car';
+    // protected static ?string $navigationIcon = 'heroicon-o-car';
     protected static ?string $navigationLabel = 'Cars';
-    protected static ?string $navigationGroup = 'Cars'; 
+    protected static ?string $navigationGroup = 'Cars';
 
     public static function getEloquentQuery(): Builder
     {
         $user = auth()->user();
         return parent::getEloquentQuery()->where('vendor_id', $user->id);
     }
-       public static function canViewAny(): bool
+    public static function canViewAny(): bool
     {
         $user = \Filament\Facades\Filament::auth()->user();
         return $user && $user->vendor && $user->vendor->department === 'cars';
     }
-    
+
 
     public static function form(Form $form): Form
     {
@@ -37,7 +38,7 @@ class CarResource extends Resource
                 ->label('Make')
                 ->required()
                 ->maxLength(255),
-                
+
             Forms\Components\TextInput::make('model')
                 ->label('Model')
                 ->required()
@@ -101,21 +102,41 @@ class CarResource extends Resource
                     'warning' => 'pending',
                 ]),
             Tables\Columns\TextColumn::make('created_at')->dateTime(),
+
             Tables\Columns\ImageColumn::make('image')
-                ->label('Car Image')
-                ->getStateUsing(fn ($record) => $record->getFirstMediaUrl('cars', 'thumb')),
+                ->label('Preview')
+                ->getStateUsing(function ($record) {
+                    // Normalize class name to match how Spatie stores it
+                    $modelType = get_class($record); // e.g., App\Models\Tenant\Car\Car
+
+                    // Use `::class` if you're sure what class is saved in media table
+                    // $modelType = \App\Models\Tenant\Car\Car::class;
+
+                    $media = Media::on('mysql') // ← force use of multivendor connection
+
+                        ->where('model_type', $modelType)
+                        ->where('model_id', $record->getKey())
+                        ->where('collection_name', 'images')
+                        ->latest()
+                        ->first();
+    
+
+                   return $media ? url('storage/cars/images/' . $media->file_name) : url('images/placeholder.jpg'); 
+                })
+                ->size(60)
+                ->circular(),
         ])
-        ->filters([
-            // Add any filters here
-        ])
-        ->actions([
-            Tables\Actions\ViewAction::make(),
-            Tables\Actions\EditAction::make(),
-            Tables\Actions\DeleteAction::make(),
-        ])
-        ->bulkActions([
-            Tables\Actions\DeleteBulkAction::make(),
-        ]);
+            ->filters([
+                // Add any filters here
+            ])
+            ->actions([
+                Tables\Actions\ViewAction::make(),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
     }
 
     public static function getRelations(): array
@@ -127,7 +148,7 @@ class CarResource extends Resource
 
     public static function getPages(): array
     {
-        
+
         return [
             'index' => Pages\ListCars::route('/'),
             'create' => Pages\CreateCar::route('/create'),
