@@ -17,6 +17,19 @@ class EditProperty extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+    protected function afterSave(): void
+    {
+        
+        if (isset($this->data['images'])) {
+            foreach ($this->data['images'] as $file) {
+                $this->getRecord()
+                    ->addMediaFromDisk($file, 'public')
+                    ->preservingOriginal()
+                    ->toMediaCollection('images', 'public');
+            }
+        }
+    }
+
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $data['vendor_id'] = $this->record->vendor_id ?? Auth::id();

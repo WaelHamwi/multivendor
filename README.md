@@ -77,3 +77,37 @@ php artisan storage:link
 
 php artisan make:filament-relation-manager PropertyFeatureRelationManager
 
+
+php artisan make:migration create_categories_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_subcategories_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_products_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_product_images_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_variation_types_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_variation_options_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_product_variations_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_orders_table --path=database/migrations/vendor_clothing
+php artisan make:migration create_order_items_table --path=database/migrations/vendor_clothing
+
+
+php artisan make:model Tenant/Clothing/Category
+php artisan make:model Tenant/Clothing/Subcategory
+php artisan make:model Tenant/Clothing/Product
+php artisan make:model Tenant/Clothing/ProductImage
+php artisan make:model Tenant/Clothing/VariationType
+php artisan make:model Tenant/Clothing/VariationOption
+php artisan make:model Tenant/Clothing/ProductVariation
+php artisan make:model Tenant/Clothing/Order
+php artisan make:model Tenant/Clothing/OrderItem
+
+php artisan migrate:rollback --path=database/migrations/vendor_clothing
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS orders, products, categories, subcategories, product_variations, variation_types, variation_options, product_images, migrations;
+
+php artisan make:filament-resource Subcategory --path=app/Filament/Vendor/Resources
+
+php artisan make:filament-resource Subcategory
+
+
+php artisan make:filament-resource Product
+
+

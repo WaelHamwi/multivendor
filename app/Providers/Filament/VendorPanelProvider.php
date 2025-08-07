@@ -29,6 +29,9 @@ class VendorPanelProvider extends PanelProvider
         $resources = [
             \App\Filament\Vendor\Resources\CarResource::class,
             \App\Filament\Vendor\Resources\PropertyResource::class,
+            \App\Filament\Vendor\Resources\CategoryResource::class,
+            \App\Filament\Vendor\Resources\SubcategoryResource::class,
+
         ];
 
 

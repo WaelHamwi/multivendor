@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Tenant\Clothing\Category;
+use App\Models\Tenant\Clothing\Order;
+use App\Models\Tenant\Clothing\Product;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
@@ -55,17 +58,24 @@ class Vendor extends Model
         return 'mysql'; // Default connection for Vendor model itself
     }
 
-    // Define the relationship with the products model (store data in vendor DB)
-    public function products()
+    public function categories()
     {
-        // Dynamically set the connection for the vendor's products
-        return $this->hasMany(Product::class)->usingConnection($this->getTenantConnectionName());
+        return (new \App\Models\Tenant\Clothing\Category)->setConnection('vendor_db')->where('vendor_id', $this->id);
     }
 
-    // Method to dynamically get the tenant database connection name
+    public function products()
+    {
+        return $this->hasMany(Product::class)->usingConnection($this->getTenantConnectionName());
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+
     public function getTenantConnectionName()
     {
-        return 'vendor_' . $this->id . '_db';  // Dynamically set the connection for the vendor's database
+        return 'vendor_' . $this->id . '_db';
     }
 
 

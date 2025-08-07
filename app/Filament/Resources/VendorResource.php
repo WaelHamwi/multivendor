@@ -69,7 +69,7 @@ class VendorResource extends Resource
                         'enterprise' => 'Enterprise',
                     ])
                     ->default('free'),
-                Forms\Components\Select::make('department') 
+                Forms\Components\Select::make('department')
                     ->label('Department')
                     ->options([
                         'clothing' => 'Clothing',
@@ -116,6 +116,24 @@ class VendorResource extends Resource
 
                         return redirect()->route('filament.resources.vendors.index')->with('success', 'Vendor created successfully and database setup.');
                     })*/
+                Tables\Actions\Action::make('ban_vendor')
+                    ->label(function (Vendor $vendor) {
+                        return $vendor->status === 'banned' ? 'Unban Vendor' : 'Ban Vendor'; 
+                    })
+                    ->color(function (Vendor $vendor) {
+                        return $vendor->status === 'banned' ? 'success' : 'danger'; 
+                    })
+                   /* ->icon(function (Vendor $vendor) {
+                        return $vendor->status === 'banned' ? 'heroicon-o-ban' : 'heroicon-o-unlock';  
+                    })*/
+                    ->action(function (Vendor $vendor) {
+                   
+                        $newStatus = $vendor->status === 'banned' ? 'approved' : 'banned'; 
+                        $vendor->update(['status' => $newStatus]);
+
+
+                        return redirect()->route('filament.admin.resources.vendors.index')->with('success', "Vendor has been {$newStatus}.");
+                    })
             ]);
     }
 

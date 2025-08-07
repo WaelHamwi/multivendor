@@ -17,13 +17,18 @@ class CreateProperty extends CreateRecord
 
         return $data;
     }
+
     protected function afterCreate(): void
     {
         foreach ($this->data['images'] as $file) {
-            $this->getRecord() 
-                 ->addMediaFromDisk($file, 'public')
+            $this->getRecord()
+                ->addMediaFromDisk($file, 'public')
                 ->preservingOriginal()
                 ->toMediaCollection('images', 'public');
         }
+    }
+    protected function getRedirectUrl(): string
+    {
+        return route('filament.vendor.resources.properties.index');
     }
 }

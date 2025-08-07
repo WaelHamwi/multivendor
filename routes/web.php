@@ -5,6 +5,13 @@ use Inertia\Inertia;
 use App\Http\Controllers\HomeController;
 use Filament\Facades\Filament;
 use App\Http\Controllers\Vendor\VendorController;
+use App\Models\Tenant\RealEstate\Property;
+
+/*Route::bind('record', function ($value) {
+    return Property::findOrFail($value);
+});*/
+
+
 
 // Home route
 Route::get('/', [HomeController::class, 'index'])->name('home');
