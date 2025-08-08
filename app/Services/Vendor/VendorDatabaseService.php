@@ -76,8 +76,10 @@ class VendorDatabaseService
 
         config(['database.connections.vendor__db.database' => $databaseName]);
 
+
         DB::purge('vendor__db');
         DB::reconnect('vendor__db');
+     
     }
 
     /**

@@ -12,10 +12,10 @@ return new class extends Migration
     // database/migrations/vendor_clothing/create_products_table.php
     public function up()
     {
-        Schema::create('products', function (Blueprint $table) {
+        Schema::connection('vendor__db')->create('products', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('vendor_id');  
-            $table->unsignedBigInteger('subcategory_id'); 
+            $table->unsignedBigInteger('vendor_id');
+            $table->unsignedBigInteger('subcategory_id');
             $table->string('name');
             $table->string('slug')->unique();
             $table->text('description');
