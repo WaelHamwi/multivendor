@@ -13,10 +13,18 @@ use Illuminate\Support\Facades\DB;
 class CreateProduct extends CreateRecord
 {
     protected static string $resource = ResourcesProductResource::class;
+
+    public function mount(): void
+    {
+        // dd('CreateProduct page mounted');
+    }
+
+    public function submitForm()
+    {
+        $this->mutateFormDataBeforeCreate($this->form->getState());
+    }
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-       dd(DB::connection('vendor__db')->getDatabaseName());
-
         app(VendorDatabaseService::class)->setVendorDatabase('vendor_clothing_db');
         $data['vendor_id'] = Auth::id();
         return $data;

@@ -5,7 +5,9 @@ namespace App\Filament\Vendor\Resources;
 use App\Filament\Vendor\Resources\ProductResource\Pages;
 use App\Models\Tenant\Clothing\Product as ClothingProduct;
 use App\Models\Tenant\Clothing\Subcategory;
+use App\Models\Tenant\Clothing\VariationType;
 use Filament\Forms;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -22,115 +24,131 @@ use Illuminate\Validation\Rule;
 class ProductResource extends Resource
 {
     protected static ?string $model = ClothingProduct::class;
-
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
     protected static ?string $navigationGroup = 'Clothing';
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->where('vendor_id', Auth::id());
-    }
 
     public static function form(Form $form): Form
     {
-        return $form->schema([
-
-
-            Select::make('subcategory_id')
-                ->label('Subcategory')
-                ->options(function () {
-                    return Subcategory::whereHas('category', function ($query) {
-                        $query->where('vendor_id', Auth::id());
-                    })->pluck('name', 'id');
-                })
-                ->searchable()
-                ->required()
-                ->rules([
-                    'required',
-                    Rule::exists('vendor_clothing_db.subcategories', 'id')
-                        ->where(function ($query) {
-                            $query->whereHas('category', function ($q) {
-                                $q->where('vendor_id', Auth::id());
-                            });
-                        })
-                ]),
-
-            TextInput::make('name')
-                ->required()
-                ->maxLength(255),
-
-            TextInput::make('slug')
-                ->unique(ClothingProduct::class, 'slug')
-                ->required()
-                ->maxLength(255),
-
-            Textarea::make('description')
-                ->required()
-                ->rows(5),
-
-            TextInput::make('price')
-                ->numeric()
-                ->required()
-                ->prefix('$'),
-
-            TextInput::make('quantity')
-                ->numeric()
-                ->required(),
-
-            TextInput::make('meta_title')
-                ->required()
-                ->maxLength(255),
-
-            TextInput::make('meta_description')
-                ->required()
-                ->maxLength(255),
-
-            Select::make('status')
-                ->options([
-                    'active' => 'Active',
-                    'draft' => 'Draft',
-                    'archived' => 'Archived',
+        return $form
+            ->schema([
+                Forms\Components\Grid::make([   // Using Grid instead of Split for more control
+                    'lg' => 2,                   // 2 columns on large screens (left and right)
+                    'md' => 1,                   // 1 column on medium screens (for better responsiveness)
                 ])
-                ->required(),
+                    ->schema([
+                        // LEFT SIDE - PRODUCT INFO & SEO
+                        Forms\Components\Section::make('Product Details')
+                            ->schema([
+                                TextInput::make('name')
+                                    ->required()
+                                    ->maxLength(255),
 
-            Repeater::make('custom_attributes')
-                ->schema([
-                    TextInput::make('key')->required()->label('Attribute Key'),
-                    TextInput::make('value')->required()->label('Attribute Value'),
-                ])
-                ->label('Custom Attributes')
-                ->addable()
-                ->reorderable()
-                ->deletable()
-                ->collapsed()
-                ->default([])
-        ]);
+                                TextInput::make('slug')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique(ignoreRecord: true),
+
+                                Textarea::make('description')
+                                    ->columnSpanFull(),
+
+                                TextInput::make('price')
+                                    ->required()
+                                    ->numeric()
+                                    ->prefix('$'),
+
+                                TextInput::make('quantity')
+                                    ->required()
+                                    ->numeric()
+                                    ->minValue(0),
+
+                                Radio::make('subcategory_id')
+                                    ->label('Subcategory')
+                                    ->required()
+                                    ->options(function () {
+                                        $user = Auth::user();
+                                        return Subcategory::whereHas('category', function ($query) use ($user) {
+                                            $query->where('vendor_id', $user->id);
+                                        })->pluck('name', 'id');
+                                    }),
+
+                                ToggleButtons::make('satatus')
+                                    ->required()
+                                    ->options([
+                                        'draft' => 'Draft',
+                                        'published' => 'Published',
+                                        'archived' => 'Archived',
+                                    ])
+                                    ->colors([
+                                        'draft' => 'warning',
+                                        'published' => 'success',
+                                        'archived' => 'danger',
+                                    ])
+                                    ->inline(),
+                            ])
+                            ->columns(2),
+
+                        Forms\Components\Section::make('SEO')
+                            ->schema([
+                                TextInput::make('meta_title')
+                                    ->maxLength(255),
+                                Textarea::make('meta_description')
+                                    ->maxLength(255),
+                            ]),
+
+
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
     {
-        return $table->columns([
-            Tables\Columns\TextColumn::make('name')->sortable()->searchable(),
-            Tables\Columns\TextColumn::make('subcategory.name')->label('Subcategory'),
-            Tables\Columns\TextColumn::make('price')->money('usd'),
-            Tables\Columns\TextColumn::make('quantity'),
-            Tables\Columns\TextColumn::make('status')->badge(),
-        ])
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('subcategory.name')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('price')
+                    ->money()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('quantity')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\ToggleColumn::make('status')
+                    ->label('Published'),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('subcategory')
+                    ->relationship('subcategory', 'name'),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'published' => 'Published',
+                        'archived' => 'Archived',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                Tables\Actions\BulkActionGroup::make([Tables\Actions\DeleteBulkAction::make()]),
             ]);
     }
 
     public static function getRelations(): array
     {
-        return [];
+        return [
+            //
+        ];
     }
 
     public static function getPages(): array
@@ -140,5 +158,17 @@ class ProductResource extends Resource
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user = auth()->user();
+        return parent::getEloquentQuery()->where('vendor_id', $user->id);
+    }
+
+    public static function canViewAny(): bool
+    {
+        $user = \Filament\Facades\Filament::auth()->user();
+        return $user && $user->vendor && $user->vendor->department === 'clothing';
     }
 }

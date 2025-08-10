@@ -111,3 +111,5 @@ php artisan make:filament-resource Subcategory
 php artisan make:filament-resource Product
 
 
+
+php artisan make:migration create_media_table --database=vendor_clothing_db
