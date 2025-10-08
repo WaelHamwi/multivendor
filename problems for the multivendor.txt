@@ -1,0 +1,69 @@
+المشكلة الأولى بالاكسس للغيت هب:
+C:\Users\wael\Desktop>composer create-project laravel/laravel multivendor
+Creating a "laravel/laravel" project at "./multivendor"
+Installing laravel/laravel (v12.1.0)
+  - Syncing laravel/laravel (v12.1.0) into cache
+    Failed to download laravel/laravel from source: Failed to execute git clone --mirror -- https://ghp...ZAZ:x-oauth-basic@github.com/laravel/laravel.git C:/Users/wael/AppData/Local/Composer/vcs/https---github.com-laravel-laravel.git/
+
+Cloning into bare repository 'C:/Users/wael/AppData/Local/Composer/vcs/https---github.com-laravel-laravel.git'...
+error: RPC failed; curl 18 transfer closed with outstanding read data remaining
+error: 5344 bytes of body are still expected
+fetch-pack: unexpected disconnect while reading sideband packet
+fatal: early EOF
+fatal: fetch-pack: invalid index-pack output
+
+    Now trying to download from dist
+  - Downloading laravel/laravel (v12.1.0)
+
+Could not fetch https://api.github.com/repos/laravel/laravel/zipball/4ab121576ed4f28dbeba9e58c949552b3913d60a, please review your configured GitHub OAuth token or enter a new one to access private repos
+When working with _public_ GitHub repositories only, head here to retrieve a token:
+https://github.com/settings/tokens/new?scopes=&description=Composer+on+DESKTOP-P3S7VUN+2025-07-21+1936
+This token will have read-only permission for public information only.
+When you need to access _private_ GitHub repositories as well, go to:
+https://github.com/settings/tokens/new?scopes=repo&description=Composer+on+DESKTOP-P3S7VUN+2025-07-21+1936
+Note that such tokens have broad read/write permissions on your behalf, even if not needed by Composer.
+Tokens will be stored in plain text in "C:/Users/wael/AppData/Roaming/Composer/auth.json" for future use by Composer.
+For additional information, check https://getcomposer.org/doc/articles/authentication-for-private-packages.md#github-oauth
+Token (hidden):
+Invalid token provided.
+You can also add it manually later by using "composer config --global --auth github-oauth.github.com <token>"
+
+In AuthHelper.php line 132:
+
+  Could not authenticate against github.com
+
+
+create-project [-s|--stability STABILITY] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--repository REPOSITORY] [--repository-url REPOSITORY-URL] [--add-repository] [--dev] [--no-dev] [--no-custom-installers] [--no-scripts] [--no-progress] [--no-secure-http] [--keep-vcs] [--remove-vcs] [--no-install] [--no-audit] [--audit-format AUDIT-FORMAT] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--ask] [--] [<package> [<directory> [<version>]]]
+
+Step 1: Generate a GitHub Personal Access Token
+Go to GitHub Personal Access Tokens.
+
+Select "classic" token (Personal Access Token (classic)).
+
+No scopes are needed for public repositories—just give it a name like composer-laravel.
+
+Generate the token and copy it.
+
+Step 2: Configure Composer to Use the Token
+Run this command in CMD/PowerShell:
+
+bash
+Copy
+Edit
+composer config --global --auth github-oauth.github.com <your-token>
+
+
+
+
+
+
+
+
+المشكلة الثانية سيكيوريتي في الغيت هب:
+It looks like Git is detecting a discrepancy between the ownership of the repository and the current user. You can resolve this issue by telling Git to treat this directory as "safe" by running the command suggested in the error message:
+
+bash
+Copy code
+git config --global --add safe.directory C:/Users/wael/Desktop/multivendor
+
+

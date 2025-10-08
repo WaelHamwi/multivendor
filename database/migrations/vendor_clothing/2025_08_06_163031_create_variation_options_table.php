@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('variation_options', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('vendor_id');
             $table->foreignId('variation_type_id')->constrained('variation_types')->onDelete('cascade');
             $table->string('name');
             $table->string('image_path')->nullable();

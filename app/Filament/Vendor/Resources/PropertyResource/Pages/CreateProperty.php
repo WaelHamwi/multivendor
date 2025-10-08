@@ -20,6 +20,7 @@ class CreateProperty extends CreateRecord
 
     protected function afterCreate(): void
     {
+        
         foreach ($this->data['images'] as $file) {
             $this->getRecord()
                 ->addMediaFromDisk($file, 'public')

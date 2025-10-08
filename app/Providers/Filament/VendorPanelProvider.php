@@ -32,6 +32,8 @@ class VendorPanelProvider extends PanelProvider
             \App\Filament\Vendor\Resources\CategoryResource::class,
             \App\Filament\Vendor\Resources\SubcategoryResource::class,
             \App\Filament\Vendor\Resources\ProductResource::class,
+            \App\Filament\Vendor\Resources\VariationTypeResource::class,
+            \App\Filament\Vendor\Resources\VariationOptionResource::class,
 
         ];
 

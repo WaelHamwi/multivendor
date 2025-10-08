@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('variation_types', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('vendor_id');
             $table->string('name');
             $table->enum('type', ['radio', 'image', 'dropdown']);
             $table->timestamps();

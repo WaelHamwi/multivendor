@@ -14,7 +14,8 @@ class VariationType extends Model
     protected $fillable = [
         'product_id',
         'name',
-        'type'
+        'type',
+        'vendor_id'
     ];
 
     public function __construct(array $attributes = [])

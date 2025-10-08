@@ -112,4 +112,17 @@ php artisan make:filament-resource Product
 
 
 
-php artisan make:migration create_media_table --database=vendor_clothing_db
+php artisan make:migration create_media_table --path=database/migrations/vendor_clothing
+php artisan make:filament-resource Vendor/VariationType
+
+
+
+
+php artisan route:clear
+php artisan cache:clear
+php artisan config:clear
+php artisan view:clear
+php artisan optimize
+
+
+php artisan route:clear for clearing the cache to show the routes ! 
